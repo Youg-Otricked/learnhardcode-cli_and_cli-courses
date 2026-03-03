@@ -1,0 +1,32 @@
+{
+    "author": "YougOtricked",
+    "course_lang": "bash/zsh",
+    "course_name": "learn-linux",
+    "description": "Learn Linux on any OS",
+    "difficulty": "intermediate",
+    "lesson_hashes": [
+        "1cbca150"
+    ],
+    "lessons": [
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cd ~",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l1"
+        }
+    ],
+    "prerequisites": [],
+    "tags": [
+        "Linux",
+        "Core"
+    ],
+    "version": "1.0.0"
+}

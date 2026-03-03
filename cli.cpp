@@ -12,7 +12,7 @@
 #include "json.hpp"
 #include "base64.hpp"
 #include <sys/wait.h>
-std::string CURRENT_VERSION = "1.0.0";
+std::string CURRENT_VERSION = "1.0.2";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -616,15 +616,14 @@ void handlerImportLesson(int numArgs, char* args[]) {
     std::cout << "Lesson " + lesson + " successfully imported" << '\n';
 }
 void handlerSetup(int numArgs, char* args[]) {
-    system("echo 'export PATH=\"/usr/share/:$PATH\"' >> ~/.bashrc");
     if (numArgs < 1) throw "Usage: lhc setup <username>";
     std::error_code ec;
     std::filesystem::create_directories(getHomePath("exported_courses"), ec);
     std::filesystem::create_directories(getHomePath("exported_lessons"), ec);
     std::filesystem::create_directories(getHomePath("cli_lessons"), ec);
     std::filesystem::create_directories(getHomePath("browser_lessons"), ec);
-    system("cp ./lhc /usr/share/lhc");
-    system("chmod +x /usr/share/lhc");
+    system("cp ./lhc /usr/local/bin/lhc");
+    system("chmod +x /usr/local/bin/lhc");
     if (ec) throw "Failed to create dir: " + ec.message();
     std::string cfgPath = getHomePath("user_config.json");
     if (!std::filesystem::exists(cfgPath)) {
@@ -863,7 +862,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
         std::cout << "Updating CLI: " << CURRENT_VERSION << " -> " << remoteVersion << "\n";
         system("curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc");
         system("chmod +x /tmp/lhc");
-        system("mv /tmp/lhc /usr/share/lhc");
+        system("mv /tmp/lhc /usr/local/bin/lhc");
     } else {
         std::cout << "CLI is up to date.\n";
     }
@@ -881,7 +880,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
             nlohmann::json local = nlohmann::json::parse(in);
             std::string localVersion = local["version"].get<std::string>();
             
-            if (localVersion >= remoteVersion) {
+            if (localVersion == remoteVersion) {
                 std::cout << name << " is up to date (" << localVersion << ")\n";
                 continue;
             }
@@ -919,7 +918,7 @@ void handlerImportCourse(int numArgs, char* args[]) {
     std::cout << "Successfully imported course " << course_name << '\n';
 }
 void handlerExportCourse(int numArgs, char* args[]) {
-    if (numArgs < 6) throw "Usage: lhc export-c <course_name> <course_description> <tags([tag1, tag2...]> <version> <dificulty> <prereqs(array of strings> (--browser)";
+    if (numArgs < 6) throw "Usage: lhc export-c <course_name> <course_description> <tags([tag1, tag2...]> <version> <difficulty> <prereqs(array of strings> (--browser)";
     std::string course = args[0];
     std::ifstream file_in(getHomePath("user_config.json"));
     nlohmann::json data = nlohmann::json::parse(file_in);
@@ -932,7 +931,7 @@ void handlerExportCourse(int numArgs, char* args[]) {
     j["tags"] = parseArrayArg(args[2]);
     j["prerequisites"] = parseArrayArg(args[5]);
     j["version"] = args[3];
-    j["dificulty"] = args[4];
+    j["difficulty"] = args[4];
     j["description"] = args[1];
     j["lesson_hashes"] = nlohmann::json::array();
     j["lessons"] = nlohmann::json::array();
