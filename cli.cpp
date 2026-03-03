@@ -768,13 +768,8 @@ void handlerRun(int numArgs, char* args[]) {
         if (!hasPassed) {
             std::cout << "Fail";
             if (isSubmit) {
-                std::string url = "https://youg-otricked.github.io/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
-
-                #ifdef __linux__
-                    system(("xdg-open '" + url + "'").c_str());
-                #elif __APPLE__
-                    system(("open '" + url + "'").c_str());
-                #endif
+                std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
+                std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
                 break;
             }
         }
@@ -794,24 +789,14 @@ void handlerRun(int numArgs, char* args[]) {
         std::cout << (hasPassed ? "Success" : "Fail") << '\n';
         std::cout << "Exit Code: " << commandOutput.exitCode << '\n' << "Command Output: " << commandOutput.out << '\n';
         if (!hasPassed) {
-            std::string url = "https://youg-otricked.github.io/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
-
-            #ifdef __linux__
-                system(("xdg-open '" + url + "'").c_str());
-            #elif __APPLE__
-                system(("open '" + url + "'").c_str());
-            #endif
+            std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
+            std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
             break;
         }
     }
     if (!hasPassed) return;
-    std::string url = "https://youg-otricked.github.io/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=true";
-
-    #ifdef __linux__
-        system(("xdg-open '" + url + "'").c_str());
-    #elif __APPLE__
-        system(("open '" + url + "'").c_str());
-    #endif
+    std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=true";
+    std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
     markLessonComplete(course, lessonTitle);
 }
 std::vector<std::string> parseArrayArg(const std::string& arg) {
@@ -831,26 +816,32 @@ std::vector<std::string> parseArrayArg(const std::string& arg) {
     }
     return result;
 }
-void importCourseFromString(std::string course_name) {
-    std::ifstream course_in(getHomePath("exported_courses/" + course_name));
-    nlohmann::json course = nlohmann::json::parse(course_in);
+void importCourseFromJSON(const std::string& courseData) {
+    if (courseData.empty()) {
+        std::cerr << "Error: empty course data!\n";
+        return;
+    }
+
+    nlohmann::json course = nlohmann::json::parse(courseData);
     std::string name = course["course_name"].get<std::string>();
     std::string lang = course["course_lang"].get<std::string>();
     addCourse(name, lang);
     editConfig("current_course", name);
+
     for (auto& lesson : course["lessons"]) {
         std::string title = lesson["title"].get<std::string>();
         createFile(title + ".json", lesson.dump(4));
         std::string combined = name + ":" + lang + ":" + title;
         std::string hash = generateShortID(combined);
-        
+
         addCourseLesson(title);
         addLessonHash(title, hash);
         addHashPath(hash, getHomePath("cli_lessons/" + title + ".json"));
-        
+
         std::cout << "Imported: " << title << " (" << hash << ")\n";
     }
-    std::cout << "Successfully imported course " << course_name << '\n';
+
+    std::cout << "Successfully imported course " << name << "\n";
 }
 std::vector<int> parseVersion(const std::string& versionStr) {
     std::vector<int> parts;
@@ -907,7 +898,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
             nlohmann::json local = nlohmann::json::parse(in);
             std::string localVersion = local["version"].get<std::string>();
             
-            if (isVersionGreater(localVersion, remoteVersion)) {
+            if (!isVersionGreater(localVersion, remoteVersion)) {
                 std::cout << name << " is up to date (" << localVersion << ")\n";
                 continue;
             }
@@ -918,7 +909,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
         std::string courseData = execWithCode(
             "curl -s " + c["url"].get<std::string>()
         ).out;
-        importCourseFromString(courseData);
+        importCourseFromJSON(courseData);
     }
 }
 void handlerImportCourse(int numArgs, char* args[]) {
