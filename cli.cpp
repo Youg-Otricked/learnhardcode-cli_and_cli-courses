@@ -623,8 +623,8 @@ void handlerSetup(int numArgs, char* args[]) {
     std::filesystem::create_directories(getHomePath("exported_lessons"), ec);
     std::filesystem::create_directories(getHomePath("cli_lessons"), ec);
     std::filesystem::create_directories(getHomePath("browser_lessons"), ec);
-    system("cp ./lhc /usr/share/bin/lhc");
-    system("chmod +x /usr/share/bin/lhc");
+    system("cp ./lhc /usr/share/lhc");
+    system("chmod +x /usr/share/lhc");
     if (ec) throw "Failed to create dir: " + ec.message();
     std::string cfgPath = getHomePath("user_config.json");
     if (!std::filesystem::exists(cfgPath)) {
