@@ -31,6 +31,7 @@ void handlerExportCourse(int numArgs, char* args[]);
 void handlerImportCourse(int numArgs, char* args[]);
 void handlerImportLesson(int numArgs, char* args[]);
 void handlerExportLesson(int numArgs, char* args[]);
+void handlerUpgrade(int numArgs, char* args[]);
 std::string getHomePath(const std::string& subPath) {
     const char* home = std::getenv("HOME");
     if (!home) return subPath;
@@ -71,7 +72,7 @@ void handlerDeleteBrowserLesson(int numArgs, char* args[]) {
     if (ec) throw "Failed to delete: " + path + " (" + ec.message() + ")";
     if (!removed) throw "File not found: " + path;
 }
-std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
+std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
 std::string generateShortID(const std::string& input) {
     unsigned int hash = 2166136261u;
     for (char c : input) {
