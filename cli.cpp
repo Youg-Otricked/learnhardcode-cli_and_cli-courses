@@ -852,6 +852,32 @@ void importCourseFromString(std::string course_name) {
     }
     std::cout << "Successfully imported course " << course_name << '\n';
 }
+std::vector<int> parseVersion(const std::string& versionStr) {
+    std::vector<int> parts;
+    std::stringstream ss(versionStr);
+    std::string part;
+    while (std::getline(ss, part, '.')) {
+        parts.push_back(std::stoi(part));
+    }
+    return parts;
+}
+bool isVersionGreater(const std::string& v1, const std::string& v2) {
+    std::vector<int> parts1 = parseVersion(v1);
+    std::vector<int> parts2 = parseVersion(v2);
+    size_t n = std::max(parts1.size(), parts2.size());
+    for (size_t i = 0; i < n; ++i) {
+        int num1 = (i < parts1.size()) ? parts1[i] : 0;
+        int num2 = (i < parts2.size()) ? parts2[i] : 0;
+
+        if (num1 > num2) {
+            return true;
+        } else if (num1 < num2) {
+            return false;
+        }
+    }
+
+    return false; 
+}
 void handlerUpgrade(int numArgs, char* args[]) {
     std::string remoteVersion = execWithCode(
         "curl -s https://raw.githubusercontent.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/main/version.txt"
@@ -859,7 +885,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
     if (!remoteVersion.empty() && remoteVersion.back() == '\n') 
         remoteVersion.pop_back();
     
-    if (remoteVersion != CURRENT_VERSION) {
+    if (isVersionGreater(remoteVersion, CURRENT_VERSION)) {
         std::cout << "Updating CLI: " << CURRENT_VERSION << " -> " << remoteVersion << "\n";
         system("curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc");
         system("chmod +x /tmp/lhc");
@@ -881,7 +907,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
             nlohmann::json local = nlohmann::json::parse(in);
             std::string localVersion = local["version"].get<std::string>();
             
-            if (localVersion == remoteVersion) {
+            if (isVersionGreater(localVersion, remoteVersion)) {
                 std::cout << name << " is up to date (" << localVersion << ")\n";
                 continue;
             }
