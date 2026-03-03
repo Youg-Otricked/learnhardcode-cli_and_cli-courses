@@ -616,15 +616,15 @@ void handlerImportLesson(int numArgs, char* args[]) {
     std::cout << "Lesson " + lesson + " successfully imported" << '\n';
 }
 void handlerSetup(int numArgs, char* args[]) {
-    system("echo 'export PATH=\"/usr/share/bin:$PATH\"' >> ~/.bashrc");
+    system("echo 'export PATH=\"/usr/share/:$PATH\"' >> ~/.bashrc");
     if (numArgs < 1) throw "Usage: lhc setup <username>";
     std::error_code ec;
     std::filesystem::create_directories(getHomePath("exported_courses"), ec);
     std::filesystem::create_directories(getHomePath("exported_lessons"), ec);
     std::filesystem::create_directories(getHomePath("cli_lessons"), ec);
     std::filesystem::create_directories(getHomePath("browser_lessons"), ec);
-    system("cp ./lhc /usr/share/bin/lhc");
-    system("chmod +x /usr/share/bin/lhc");
+    system("cp ./lhc /usr/share/lhc");
+    system("chmod +x /usr/share/lhc");
     if (ec) throw "Failed to create dir: " + ec.message();
     std::string cfgPath = getHomePath("user_config.json");
     if (!std::filesystem::exists(cfgPath)) {
@@ -863,7 +863,7 @@ void handlerUpgrade(int numArgs, char* args[]) {
         std::cout << "Updating CLI: " << CURRENT_VERSION << " -> " << remoteVersion << "\n";
         system("curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc");
         system("chmod +x /tmp/lhc");
-        system("mv /tmp/lhc /usr/share/bin/lhc");
+        system("mv /tmp/lhc /usr/share/lhc");
     } else {
         std::cout << "CLI is up to date.\n";
     }
