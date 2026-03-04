@@ -758,8 +758,10 @@ void handlerRun(int numArgs, char* args[]) {
         if (!out.empty() && out.back() == '\n') out.pop_back();
         if (commandJson["must_contain"] != "") {
             hasPassed = out.find(commandJson["must_contain"].get<std::string>()) != std::string::npos && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else {
+        } else if (commandJson["expected"] != "") {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        } else {
+            hasPassed = commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (isSubmit || i < 3) {
             std::cout << (hasPassed ? "Success" : "Fail") << '\n';

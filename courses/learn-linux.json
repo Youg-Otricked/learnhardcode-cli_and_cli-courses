@@ -2,10 +2,12 @@
     "author": "YougOtricked",
     "course_lang": "bash/zsh",
     "course_name": "learn-linux",
-    "description": "Learn Linux on any OS",
+    "description": "Learn the linux command line",
     "difficulty": "intermediate",
     "lesson_hashes": [
-        "1cbca150"
+        "1cbca150",
+        "1ebca476",
+        "20bca79c"
     ],
     "lessons": [
         {
@@ -21,12 +23,48 @@
             ],
             "submitCommands": [],
             "title": "linux-l1"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "pwd",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "accounts"
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l3"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cd fraud && cat reports.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [
+                {
+                    "command": "cd fraud && printf 'Report: This bank is a scam.\\nDetails: WHY IS MY APY -0.21 AND MY INTREST FOR A 10K LOAN 17K IN ONE YEAR\\nName: Bob\\n' > reports.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "title": "linux-l5"
         }
     ],
     "prerequisites": [],
     "tags": [
-        "Linux",
-        "Core"
+        "linux",
+        "shell",
+        "core"
     ],
-    "version": "1.0.0"
+    "version": "1.0.2"
 }

@@ -2,7 +2,7 @@
   "courses": [
     {
       "name": "learn-linux",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "url": "https://raw.githubusercontent.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/main/courses/learn-linux.json"
     }
   ]
