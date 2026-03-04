@@ -7,7 +7,10 @@
     "lesson_hashes": [
         "1cbca150",
         "1ebca476",
-        "20bca79c"
+        "20bca79c",
+        "22bcaac2",
+        "25bcaf7b",
+        "24bcade8"
     ],
     "lessons": [
         {
@@ -58,6 +61,55 @@
                 }
             ],
             "title": "linux-l5"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat archive/steve_report.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l7"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat fraud/reports.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [
+                {
+                    "command": "cat archive/steve_report.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "title": "linux-l8"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat archives/steve_report.txt",
+                    "exit_code": 1,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l9"
         }
     ],
     "prerequisites": [],
