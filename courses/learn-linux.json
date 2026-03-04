@@ -51,7 +51,7 @@
             ],
             "submitCommands": [
                 {
-                    "command": "cd fraud && printf 'Report: This bank is a scam.\\nDetails: WHY IS MY APY -0.21 AND MY INTREST FOR A 10K LOAN 17K IN ONE YEAR\\nName: Bob\\n' > reports.txt",
+                    "command": "cd fraud && printf 'Report: This bank is a scam.\\nDetails: WHY IS MY APY -0.21 AND MY INTREST FOR A 10K LOAN 17K IN ONE YEAR\\nName: Steve\\n' > reports.txt",
                     "exit_code": 0,
                     "expected": "",
                     "must_contain": ""
