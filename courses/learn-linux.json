@@ -102,7 +102,7 @@
             "lang": "bash/zsh",
             "runCommands": [
                 {
-                    "command": "cat archives/steve_report.txt",
+                    "command": "cat archive/steve_report.txt",
                     "exit_code": 1,
                     "expected": "",
                     "must_contain": ""

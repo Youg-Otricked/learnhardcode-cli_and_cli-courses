@@ -32,6 +32,7 @@ void handlerImportCourse(int numArgs, char* args[]);
 void handlerImportLesson(int numArgs, char* args[]);
 void handlerExportLesson(int numArgs, char* args[]);
 void handlerUpgrade(int numArgs, char* args[]);
+void handlerExportBrowserCourse(int numArgs, char* args[]);
 std::string getHomePath(const std::string& subPath) {
     const char* home = std::getenv("HOME");
     if (!home) return subPath;
@@ -72,7 +73,7 @@ void handlerDeleteBrowserLesson(int numArgs, char* args[]) {
     if (ec) throw "Failed to delete: " + path + " (" + ec.message() + ")";
     if (!removed) throw "File not found: " + path;
 }
-std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
+std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"export-bc", handlerExportBrowserCourse}, {"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
 std::string generateShortID(const std::string& input) {
     unsigned int hash = 2166136261u;
     for (char c : input) {
@@ -263,6 +264,19 @@ std::string readMultiline(const std::string& prompt, const std::string& endMarke
     if (!out.empty()) out.pop_back();
     return out;
 }
+bool checkMustContain(const std::string& output, const nlohmann::json& mustContain) {
+    if (mustContain.is_array()) {
+        for (auto& item : mustContain) {
+            if (output.find(item.get<std::string>()) == std::string::npos) {
+                return false;
+            }
+        }
+        return true;
+    } else if (mustContain.is_string() && mustContain.get<std::string>() != "") {
+        return output.find(mustContain.get<std::string>()) != std::string::npos;
+    }
+    return false;
+}
 void handlerCreateLesson(int numArgs, char* args[]) {
     if (numArgs < 1) throw "Usage: lhc c-lesson <title>";
     std::string title = args[0];
@@ -352,7 +366,9 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         std::getline(std::cin, tmp);
         lesson["previous"] = tmp;
         lesson["showButtons"] = false;
-
+        std::cout << "Setup code (optional, for SQL):\n";
+        std::string setupCode = readMultiline("Setup code");
+        lesson["setupCode"] = setupCode;
         std::cout << "Correct (optional, required for MCQ) (b1/b2/b3/b4): ";
         std::getline(std::cin, tmp);
         lesson["correct"] = tmp;
@@ -386,11 +402,19 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         } else {
             lesson["correct"] = "";
         }
-        std::cout << "Run harness (hash or path, optional): ";
+        lesson["rawHarness"] = false;
+        std::cout << "Run harness (hash for cli lessons, or raw code for language lessons, optional): ";
         std::getline(std::cin, tmp);
         lesson["runHarness"] = tmp;
+        if (tmp != "") lesson["rawHarness"] = true;
+        std::cout << "Submit harness raw code for language lessons, optional): ";
+        std::getline(std::cin, tmp);
+        lesson["submitHarness"] = tmp;
+        if (tmp != "") lesson["rawHarness"] = true;
         lesson["mode"] = "browser";
-
+        std::cout << "Difficulty (optional, cli/text/editor, default editor): ";
+        std::getline(std::cin, tmp);
+        if (tmp == "cli" || tmp == "text") lesson["mode"] = tmp;
         std::cout << "Difficulty (optional, e.g. easiest): ";
         std::getline(std::cin, tmp);
         lesson["difficulty"] = tmp;
@@ -607,6 +631,25 @@ void handlerExportLesson(int numArgs, char* args[]) {
 void handlerImportLesson(int numArgs, char* args[]) {
     if (numArgs < 1) throw "Usage: lhc import-l <lesson_file> (--link)";
     std::string lesson = args[0];
+    bool isLink = numArgs > 1 && std::string(args[1]) == "--link";
+    
+    std::string courseData;
+    if (isLink) {
+        std::string lessonData = execWithCode("curl -s " + lesson).out;
+        nlohmann::json lessonJson = nlohmann::json::parse(lessonData);
+        std::string title = lessonJson["title"].get<std::string>();
+        std::ofstream out(getHomePath("cli_lessons/" + title + ".json"));
+        out << lessonJson.dump(4);
+        out.close();
+        
+        std::string combined = readConfig("current_course") + ":" + getCourseLang(readConfig("current_course")) + ":" + title;
+        std::string hash = generateShortID(combined);
+        addCourseLesson(title);
+        addLessonHash(title, hash);
+        addHashPath(hash, getHomePath("cli_lessons/" + title + ".json"));
+        std::cout << "Lesson " + title + " successfully imported from URL" << '\n';
+        return;
+    }
     std::filesystem::copy(getHomePath("exported_lessons/" + lesson), getHomePath("cli_lessons/" + lesson));
     std::string title = lesson.substr(0, lesson.length() - 5);
     std::string combined = readConfig("current_course") + ":" + getCourseLang(readConfig("current_course")) + ":" + title;
@@ -756,8 +799,8 @@ void handlerRun(int numArgs, char* args[]) {
         const CmdResult commandOutput = execWithCode(commandJson["command"]);
         std::string out = commandOutput.out;
         if (!out.empty() && out.back() == '\n') out.pop_back();
-        if (commandJson["must_contain"] != "") {
-            hasPassed = out.find(commandJson["must_contain"].get<std::string>()) != std::string::npos && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        if (checkMustContain(out, commandJson["must_contain"])) {
+            hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         } else if (commandJson["expected"] != "") {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         } else {
@@ -783,10 +826,12 @@ void handlerRun(int numArgs, char* args[]) {
         const CmdResult commandOutput = execWithCode(commandJson["command"]);
         std::string out = commandOutput.out;
         if (!out.empty() && out.back() == '\n') out.pop_back();
-        if (commandJson["must_contain"] != "") {
-            hasPassed = out.find(commandJson["must_contain"].get<std::string>()) != std::string::npos && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else {
+        if (checkMustContain(out, commandJson["must_contain"])) {
+            hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        } else if (commandJson["expected"] != "") {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        } else {
+            hasPassed = commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         std::cout << (hasPassed ? "Success" : "Fail") << '\n';
         std::cout << "Exit Code: " << commandOutput.exitCode << '\n' << "Command Output: " << commandOutput.out << '\n';
@@ -917,6 +962,14 @@ void handlerUpgrade(int numArgs, char* args[]) {
 void handlerImportCourse(int numArgs, char* args[]) {
     if (numArgs < 1) throw "Usage: lhc import-c <course_save_file_name> (--link)";
     std::string course_name = args[0];
+    bool isLink = numArgs > 1 && std::string(args[1]) == "--link";
+    
+    std::string courseData;
+    if (isLink) {
+        courseData = execWithCode("curl -s " + course_name).out;
+        importCourseFromJSON(courseData);
+        return;
+    } 
     std::ifstream course_in(getHomePath("exported_courses/" + course_name));
     nlohmann::json course = nlohmann::json::parse(course_in);
     std::string name = course["course_name"].get<std::string>();
@@ -968,6 +1021,34 @@ void handlerExportCourse(int numArgs, char* args[]) {
     out << j.dump(4);
     out.close();
     std::cout << "Course " + course + " successfully exported to file exported_courses/" + course + ".json";
+}
+void handlerExportBrowserCourse(int numArgs, char* args[]) {
+    if (numArgs < 3) throw "Usage: lhc export-bc <course_name> <lang> <lesson1.json> <lesson2.json> ...";
+    
+    std::string courseName = args[0];
+    std::string lang = args[1];
+    
+    nlohmann::json course;
+    course["course_name"] = courseName;
+    course["course_lang"] = lang;
+    course["author"] = readConfig("user_name");
+    course["mode"] = "browser";
+    course["lessons"] = nlohmann::json::array();
+    course["lesson_order"] = nlohmann::json::array();
+    
+    for (int i = 2; i < numArgs; i++) {
+        std::string filename = args[i];
+        std::ifstream in(getHomePath("browser_lessons/" + filename));
+        nlohmann::json lesson = nlohmann::json::parse(in);
+        course["lessons"].push_back(lesson);
+        course["lesson_order"].push_back(filename);
+    }
+    
+    std::ofstream out(getHomePath("exported_courses/" + courseName + ".json"));
+    out << course.dump(4);
+    out.close();
+    
+    std::cout << "Exported browser course: " << courseName << "\n";
 }
 int main(int argc, char* argv[]) {
     if (argc == 1) {
