@@ -10,7 +10,8 @@
         "20bca79c",
         "22bcaac2",
         "25bcaf7b",
-        "24bcade8"
+        "24bcade8",
+        "9cf20a20"
     ],
     "lessons": [
         {
@@ -110,6 +111,20 @@
             ],
             "submitCommands": [],
             "title": "linux-l9"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat fraud/reports.txt",
+                    "exit_code": 0,
+                    "expected": "Nothing bad has happend to me since i joined your bank. Not a complaint thanks!",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l10"
         }
     ],
     "prerequisites": [],
@@ -118,5 +133,5 @@
         "shell",
         "core"
     ],
-    "version": "1.0.2"
+    "version": "1.0.4"
 }
