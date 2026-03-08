@@ -11,7 +11,9 @@
         "22bcaac2",
         "25bcaf7b",
         "24bcade8",
-        "9cf20a20"
+        "9cf20a20",
+        "9ef20d46",
+        "9ff20ed9"
     ],
     "lessons": [
         {
@@ -125,6 +127,34 @@
             ],
             "submitCommands": [],
             "title": "linux-l10"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "stat -c '%a' .offshore.txt",
+                    "exit_code": 0,
+                    "expected": "0",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l12"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "stat -c '%U:%G' accounts/.offshore.txt",
+                    "exit_code": 0,
+                    "expected": "root:root",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l13"
         }
     ],
     "prerequisites": [],
