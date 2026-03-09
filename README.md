@@ -104,3 +104,40 @@ Copys a lesson file to your exported-lessons directory, or to the website with -
 
 Export Course
 `lhc export-c <course_name> <description> <tags> <version> <difficulty> <prereqs>`
+Args are: course_name: string. description: string. tags: string array of string ("[tag1, tag2...]"). Version: Number in format Major.Minor.Patch (EG 1.0.0). Dificulty: String, typicaly: easiest, beginner, basic, intermidiate, hard, crazy, INSANE. Prereqs: string array of strings in same format as tags.
+Creates a course json (format:
+```json
+{
+    "author": YourUsername,
+    "course_lang": course_nameslanguage,
+    "course_name": course_name,
+    "description": description,
+    "difficulty": difficulty,
+    "lesson_hashes": [
+        course_nameslessonhashes
+    ],
+    "lessons": [
+        course_nameslessonjsons
+    ],
+    "prerequisites": [prereqs],
+    "tags": [
+        tags
+    ],
+    "version": version
+}
+```
+and copys it to your exported-courses directory
+
+Export Browser Course
+`lhc export-bc <course_name> <lesson1name> <lesson2name>..... (--browser)`
+Creates a course json, simmilar to above, and either copys it to yout exported-courses dir, or exports to browser with --browser flag
+
+Import lesson
+`lhc import-l <lesson-files-name-in-your-exported-lessons-directory> (--link)`
+If not using link, puts it in your user_config.json and copys it.
+If using link, then instead of file name, provided a link that can be curled that only contains the lesson (use a github.rawusercontent link if you can), and it will do as above + copy the file from the link
+
+Import Course 
+`lhc import-c <course-files-name-in-your-exported-courswes-directory> (--link)`
+Same as above, but for course jsons
+
