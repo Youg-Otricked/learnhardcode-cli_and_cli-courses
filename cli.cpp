@@ -12,7 +12,7 @@
 #include "json.hpp"
 #include "base64.hpp"
 #include <sys/wait.h>
-std::string CURRENT_VERSION = "1.0.2";
+std::string CURRENT_VERSION = "1.2.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -350,9 +350,7 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         std::cout << "Lesson title: ";
         std::getline(std::cin, tmp);
         lesson["title"] = tmp;
-        lesson["description"] = readMultiline("Lesson text: ");;
-        lesson["starterCode"] = readMultiline("Starter code");
-
+        lesson["description"] = readMultiline("Lesson text: ");
         std::cout << "(optional)\n";
         lesson["expectedOutput"] = readMultiline("Expected output");
         std::cout << "(optional)\n";
@@ -366,9 +364,6 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         std::getline(std::cin, tmp);
         lesson["previous"] = tmp;
         lesson["showButtons"] = false;
-        std::cout << "Setup code (optional, for SQL):\n";
-        std::string setupCode = readMultiline("Setup code");
-        lesson["setupCode"] = setupCode;
         std::cout << "Correct (optional, required for MCQ) (b1/b2/b3/b4): ";
         std::getline(std::cin, tmp);
         lesson["correct"] = tmp;
@@ -403,7 +398,7 @@ void handlerCreateLesson(int numArgs, char* args[]) {
             lesson["correct"] = "";
         }
         lesson["rawHarness"] = false;
-        std::cout << "Run harness (hash for cli lessons, or raw code for language lessons, optional): ";
+        std::cout << "Run harness (hash for cli lessons, optional): ";
         std::getline(std::cin, tmp);
         lesson["runHarness"] = tmp;
         if (tmp != "") lesson["rawHarness"] = true;
@@ -412,9 +407,10 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         lesson["submitHarness"] = tmp;
         if (tmp != "") lesson["rawHarness"] = true;
         lesson["mode"] = "browser";
-        std::cout << "Difficulty (optional, cli/text/editor, default editor): ";
+        std::cout << "Lesson type (cli/text, default cli): ";
         std::getline(std::cin, tmp);
         if (tmp == "cli" || tmp == "text") lesson["mode"] = tmp;
+        else lesson["mode"] = "cli";
         std::cout << "Difficulty (optional, e.g. easiest): ";
         std::getline(std::cin, tmp);
         lesson["difficulty"] = tmp;
