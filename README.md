@@ -32,7 +32,7 @@ This changes the current course to course_name
 
 List Courses
 `lhc ls-courses`
-This lists all existing courses you have installed
+This lists all existing courses you have installed along with their languages
 
 Delete Course
 `lhc d-course <course_name>`
@@ -97,3 +97,10 @@ Upgrade
 Updates all currently installed courses and the binary
 
 #### Import/Export
+
+Export Lesson (--browser)
+`lhc export-l <hash> (--browser)`
+Copys a lesson file to your exported-lessons directory, or to the website with --browser
+
+Export Course
+`lhc export-c <course_name> <description> <tags> <version> <difficulty> <prereqs>`
