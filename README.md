@@ -99,8 +99,8 @@ Updates all currently installed courses and the binary
 #### Import/Export
 
 Export Lesson (--browser)
-`lhc export-l <hash> (--browser)`
-Copys a lesson file to your exported-lessons directory, or to the website with --browser
+`lhc export-l <hash>`
+Copys a lesson file to your exported-lessons directory.
 
 Export Course
 `lhc export-c <course_name> <description> <tags> <version> <difficulty> <prereqs>`
@@ -129,9 +129,8 @@ Creates a course json (format:
 and copys it to your exported-courses directory
 
 Export Browser Course
-`lhc export-bc <course_name> <lesson1name> <lesson2name>..... (--browser)`
-Creates a course json, simmilar to above, and either copys it to yout exported-courses dir, or exports to browser with --browser flag
-
+`lhc export-bc <course_name> <lesson1name> <lesson2name>.....`
+Creates a course json, simmilar to above, and either copys it to yout exported-courses dir.
 Import lesson
 `lhc import-l <lesson-files-name-in-your-exported-lessons-directory> (--link)`
 If not using link, puts it in your user_config.json and copys it.
