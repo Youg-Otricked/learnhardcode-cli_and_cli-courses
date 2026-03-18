@@ -12,7 +12,7 @@
 #include "json.hpp"
 #include "base64.hpp"
 #include <sys/wait.h>
-std::string CURRENT_VERSION = "1.2.0";
+std::string CURRENT_VERSION = "1.3.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -406,11 +406,12 @@ void handlerCreateLesson(int numArgs, char* args[]) {
         std::getline(std::cin, tmp);
         lesson["submitHarness"] = tmp;
         if (tmp != "") lesson["rawHarness"] = true;
-        lesson["mode"] = "browser";
-        std::cout << "Lesson type (cli/text, default cli): ";
+        lesson["mode"] = "text";
+        std::cout << "Lesson type (cli/text, default text): ";
         std::getline(std::cin, tmp);
-        if (tmp == "cli" || tmp == "text") lesson["mode"] = tmp;
-        else lesson["mode"] = "cli";
+        if (tmp == "cli" || tmp == "text") {
+            lesson["mode"] = tmp;
+        }
         std::cout << "Difficulty (optional, e.g. easiest): ";
         std::getline(std::cin, tmp);
         lesson["difficulty"] = tmp;
