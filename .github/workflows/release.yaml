@@ -1,0 +1,35 @@
+name: Release from File
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'version.txt'
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Version
+        id: get_version
+        run: |
+          # Read version.txt, remove whitespace, and save to a variable
+          VERSION=$(cat version.txt | xargs)
+          echo "VERSION=v$VERSION" >> $GITHUB_ENV
+          echo "VERSION is v$VERSION"
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if this tag already exists to avoid errors
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists. Skipping."
+          else
+            gh release create "$VERSION" \
+              --generate-notes \
+              --title "Release $VERSION"
+          fi
