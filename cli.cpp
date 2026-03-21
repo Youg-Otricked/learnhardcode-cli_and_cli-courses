@@ -12,7 +12,7 @@
 #include "json.hpp"
 #include "base64.hpp"
 #include <sys/wait.h>
-std::string CURRENT_VERSION = "1.3.0";
+std::string CURRENT_VERSION = "1.4.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -663,8 +663,26 @@ void handlerSetup(int numArgs, char* args[]) {
     std::filesystem::create_directories(getHomePath("exported_lessons"), ec);
     std::filesystem::create_directories(getHomePath("cli_lessons"), ec);
     std::filesystem::create_directories(getHomePath("browser_lessons"), ec);
-    system("cp ./lhc /usr/local/bin/lhc");
-    system("chmod +x /usr/local/bin/lhc");
+    std::string homeDir = getenv("HOME");
+    std::string installDir = homeDir + "/.lhc";
+    std::filesystem::create_directories(installDir, ec);
+    std::filesystem::copy_file(
+        std::filesystem::canonical("/proc/self/exe"),
+        installDir + "/lhc",
+        std::filesystem::copy_options::overwrite_existing,
+        ec
+    );
+    std::string exportLine = "export PATH=\"$PATH:" + installDir + "\"";
+    std::string bashrc = homeDir + "/.bashrc";
+    std::ifstream checkFile(bashrc);
+    std::string fileContents((std::istreambuf_iterator<char>(checkFile)), std::istreambuf_iterator<char>());
+    checkFile.close();
+
+    if (fileContents.find(exportLine) == std::string::npos) {
+        std::ofstream rcFile(bashrc, std::ios::app);
+        rcFile << "\n" << exportLine << "\n";
+    }
+    std::cout << "Run source ~/.bashrc to finish setup!" << '\n';
     if (ec) throw "Failed to create dir: " + ec.message();
     std::string cfgPath = getHomePath("user_config.json");
     if (!std::filesystem::exists(cfgPath)) {
@@ -734,6 +752,7 @@ std::string getCourseFromLesson(const std::string& lessonTitle) {
     throw "No course found for lesson: " + lessonTitle;
 }
 void handlerHelp(int, char*[]) {
+    std::cout << "LearnHardCode CLI Version " << CURRENT_VERSION << '\n';
     std::cout
         << "Prefixes:\n"
         << "  ls: list\n"
@@ -922,9 +941,13 @@ void handlerUpgrade(int numArgs, char* args[]) {
     
     if (isVersionGreater(remoteVersion, CURRENT_VERSION)) {
         std::cout << "Updating CLI: " << CURRENT_VERSION << " -> " << remoteVersion << "\n";
-        system("curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc");
+        std::string homeDir = getenv("HOME");
+        std::string installDir = homeDir + "/.lhc";
+        std::string downloadCmd = "curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc";
+        system(downloadCmd.c_str());
         system("chmod +x /tmp/lhc");
-        system("mv /tmp/lhc /usr/local/bin/lhc");
+        std::string moveCmd = "mv /tmp/lhc " + installDir + "/lhc";
+        system(moveCmd.c_str());
     } else {
         std::cout << "CLI is up to date.\n";
     }

@@ -16,7 +16,6 @@ jobs:
       - name: Read Version
         id: get_version
         run: |
-          # Read version.txt, remove whitespace, and save to a variable
           VERSION=$(cat version.txt | xargs)
           echo "VERSION=v$VERSION" >> $GITHUB_ENV
           echo "VERSION is v$VERSION"
@@ -25,7 +24,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check if this tag already exists to avoid errors
           if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "Release $VERSION already exists. Skipping."
           else
@@ -33,3 +31,9 @@ jobs:
               --generate-notes \
               --title "Release $VERSION"
           fi
+
+      - name: Upload Release Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$VERSION" lhc
