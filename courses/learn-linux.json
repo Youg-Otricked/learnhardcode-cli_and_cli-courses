@@ -13,7 +13,8 @@
         "24bcade8",
         "9cf20a20",
         "9ef20d46",
-        "9ff20ed9"
+        "9ff20ed9",
+        "85e4f539"
     ],
     "lessons": [
         {
@@ -155,6 +156,20 @@
             ],
             "submitCommands": [],
             "title": "linux-l13"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "nvim --version",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "linux-l30"
         }
     ],
     "prerequisites": [],
@@ -163,5 +178,5 @@
         "shell",
         "core"
     ],
-    "version": "1.0.4"
+    "version": "1.1.0"
 }
