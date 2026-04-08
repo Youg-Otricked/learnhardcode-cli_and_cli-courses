@@ -1,26 +1,38 @@
 name: Release from File
+
 on:
   push:
     branches:
       - main
     paths:
       - 'version.txt'
+
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
 
       - name: Read Version
         id: get_version
         run: |
-          VERSION=$(cat version.txt | xargs)
-          echo "VERSION=v$VERSION" >> $GITHUB_ENV
-          echo "VERSION is v$VERSION"
+          VERSION="v$(cat version.txt | xargs)"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION is $VERSION"
 
-      - name: Create Release
+      - name: Build binary
+        run: |
+          g++ main.cpp -o lhc
+
+      - name: Create Release (if not exists)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -28,12 +40,12 @@ jobs:
             echo "Release $VERSION already exists. Skipping."
           else
             gh release create "$VERSION" \
-              --generate-notes \
-              --title "Release $VERSION"
+              --title "Release $VERSION" \
+              --notes "Auto release $VERSION"
           fi
 
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload "$VERSION" lhc
+          gh release upload "$VERSION" ./lhc --clobber

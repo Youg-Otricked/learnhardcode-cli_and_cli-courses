@@ -1,0 +1,36 @@
+name: Build CLI
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build macOS binary
+        run: |
+          clang++ main.cpp -o lhc-macos
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lhc-macos
+          path: lhc-macos
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Linux binary
+        run: |
+          g++ main.cpp -o lhc-linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lhc-linux
+          path: lhc-linux
