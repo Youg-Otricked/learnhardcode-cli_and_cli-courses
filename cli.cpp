@@ -12,7 +12,11 @@
 #include "json.hpp"
 #include "base64.hpp"
 #include <sys/wait.h>
-std::string CURRENT_VERSION = "1.4.0";
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+std::string CURRENT_VERSION = "1.5.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -786,6 +790,46 @@ void markLessonComplete(const std::string& course, const std::string& lessonTitl
     std::ofstream file_out(getHomePath("user_config.json"));
     file_out << data.dump(4);
 }
+void submitted(std::string hash, bool passed) {
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) return;
+
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(14042);
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0) {
+        perror("bind failed");
+        return;
+    }
+
+    if (listen(server_fd, 1) < 0) {
+        perror("listen failed");
+        return;
+    }
+
+    int client_socket = accept(server_fd, NULL, NULL);
+
+    char buffer[1024] = {0};
+    recv(client_socket, buffer, 1024, 0);
+
+    std::string body = (passed ? "PASS:" : "FAIL:") + hash;
+
+    std::string response =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: " + std::to_string(body.size()) + "\r\n"
+        "Connection: close\r\n"
+        "\r\n" +
+        body;
+
+    send(client_socket, response.c_str(), response.size(), 0);
+
+    close(client_socket);
+    close(server_fd);
+}
 void handlerRun(int numArgs, char* args[]) {
     if (numArgs < 1) throw "Usage: lhc run <HASH> (-s)";
     std::ifstream file_in(getHomePath("user_config.json"));
@@ -829,8 +873,7 @@ void handlerRun(int numArgs, char* args[]) {
         if (!hasPassed) {
             std::cout << "Fail";
             if (isSubmit) {
-                std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
-                std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
+                submitted(hash, false);
                 break;
             }
         }
@@ -852,14 +895,12 @@ void handlerRun(int numArgs, char* args[]) {
         std::cout << (hasPassed ? "Success" : "Fail") << '\n';
         std::cout << "Exit Code: " << commandOutput.exitCode << '\n' << "Command Output: " << commandOutput.out << '\n';
         if (!hasPassed) {
-            std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=false";
-            std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
+            submitted(hash, false);
             break;
         }
     }
     if (!hasPassed) return;
-    std::string url = "https://youg-otricked.github.io/learnhardcode/api/?type=cli&course=" + courseLang + "&lesson=" + lessonTitle + "&success=true";
-    std::cout << "Visit the URL " << url << " in your browser to see if you moved on. Don't try to cheat. Learning needs you to do, and it's not like the cli will magically mark it complete" << '\n';
+    submitted(hash, true);
     markLessonComplete(course, lessonTitle);
 }
 std::vector<std::string> parseArrayArg(const std::string& arg) {
