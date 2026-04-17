@@ -4,8 +4,8 @@ This CLI allows you to do many things, but the most important being run local de
 ## Geting started:
 After installing the CLI, `cd`' into the directory, and run
 ```bash
-sudo ./lhc setup <chosen username>
-# This A: moves lhc to usr/local/bin (why it needs sudo) and B: creates user_config.json, exported-courses/lessons/browser-lessons, and browser-lessons/lessons/courses directory
+./lhc setup <chosen username>
+# This A: adds the cli to your PATH and B: creates user_config.json, exported-courses/lessons/browser-lessons, and browser-lessons/lessons/courses directory
 lhc upgrade
 # This installs all of the courses listed in offical courses.json on the github, and unpacks them
 ```
@@ -82,7 +82,7 @@ Same as d-lesson, but for browser lessons
 
 Setup
 `lhc setup <username>`
-Creates neccesary files and directorys, moves lhc to local/bin (needs sudo)
+Creates neccesary files and directorys, adds lhc to PATH
 
 Help
 `lhc help`
