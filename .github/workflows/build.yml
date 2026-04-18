@@ -12,7 +12,7 @@ jobs:
 
       - name: Build macOS binary
         run: |
-          clang++ main.cpp -o lhc-macos
+          clang++ cli.cpp -o lhc-macos
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
