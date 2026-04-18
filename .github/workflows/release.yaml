@@ -30,7 +30,7 @@ jobs:
 
       - name: Build binary
         run: |
-          g++ main.cpp -o lhc
+          g++ cli.cpp -o lhc
 
       - name: Create Release (if not exists)
         env:
