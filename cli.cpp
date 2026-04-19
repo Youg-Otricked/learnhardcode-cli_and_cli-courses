@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-std::string CURRENT_VERSION = "1.5.2";
+std::string CURRENT_VERSION = "1.5.3";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
