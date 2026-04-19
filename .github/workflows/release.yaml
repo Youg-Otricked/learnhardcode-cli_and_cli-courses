@@ -1,5 +1,4 @@
-name: Release from File
-
+name: Release CLI
 on:
   push:
     branches:
@@ -8,44 +7,59 @@ on:
       - 'version.txt'
 
 jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            file_name: lhc-linux
+            compiler: g++
+          - os: macos-latest
+            file_name: lhc-macos
+            compiler: clang++
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Binary
+        run: |
+          ${{ matrix.compiler }} -std=c++20 cli.cpp -o ${{ matrix.file_name }}
+      
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.file_name }}
+          path: ${{ matrix.file_name }}
+
   release:
+    name: Create Release and Upload Assets
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install -y gh
-
-      - name: Read Version
+      
+      - name: Get Version
         id: get_version
-        run: |
-          VERSION="v$(cat version.txt | xargs)"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "VERSION is $VERSION"
-
-      - name: Build binary
-        run: |
-          g++ -std=c++20 cli.cpp -o lhc
-
-      - name: Create Release (if not exists)
+        run: echo "VERSION=v$(cat version.txt | xargs)" >> $GITHUB_ENV
+        
+      - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release $VERSION already exists. Skipping."
-          else
-            gh release create "$VERSION" \
-              --title "Release $VERSION" \
-              --notes "Auto release $VERSION"
-          fi
+          gh release create "$VERSION" --title "Release $VERSION" --notes "Auto release $VERSION" || echo "Release already exists"
 
-      - name: Upload Release Asset
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./assets
+          merge-multiple: true
+
+      - name: Upload Assets to Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload "$VERSION" ./lhc --clobber
+          gh release upload "$VERSION" ./assets/lhc-linux ./assets/lhc-macos --clobber
