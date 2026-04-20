@@ -4,6 +4,11 @@
       "name": "learn-linux",
       "version": "1.2.4",
       "url": "https://raw.githubusercontent.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/main/courses/learn-linux.json"
+    },
+    {
+      "name": "LearnGit",
+      "version": "1.0.0",
+      "url": "https://raw.githubusercontent.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/main/courses/LearnGit.json"
     }
   ]
 }

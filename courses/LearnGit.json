@@ -1,0 +1,34 @@
+{
+    "author": "YougOtricked",
+    "course_lang": "bash/zsh",
+    "course_name": "Learn Git",
+    "description": "Learn the Git cli tool!",
+    "difficulty": "medium",
+    "lesson_hashes": [
+        "676beb49"
+    ],
+    "lessons": [
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "echo \"Hi\"",
+                    "exit_code": 0,
+                    "expected": "Hi",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l1"
+        }
+    ],
+    "prerequisites": [
+        "linux"
+    ],
+    "tags": [
+        "shell",
+        "core"
+    ],
+    "version": "1.0.0"
+}
