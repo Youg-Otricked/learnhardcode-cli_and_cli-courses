@@ -16,6 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstdint>
 std::string CURRENT_VERSION = "1.5.5";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
@@ -79,7 +80,7 @@ void handlerDeleteBrowserLesson(int numArgs, char* args[]) {
 }
 std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"export-bc", handlerExportBrowserCourse}, {"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
 std::string generateShortID(const std::string& input) {
-    unsigned int hash = 2166136261u;
+    std::uint32_t hash = 2166136261u;
     for (char c : input) {
         hash ^= static_cast<unsigned char>(c);
         hash *= 16777619u;
