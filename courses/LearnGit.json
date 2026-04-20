@@ -32,6 +32,18 @@
                     "exit_code": 0,
                     "expected": "",
                     "must_contain": ""
+                },
+                {
+                    "command": "ls .github",
+                    "exit_code": 2,
+                    "expected": "",
+                    "must_contain": ""
+                },
+                {
+                    "command": "ls .gitignore",
+                    "exit_code": 2,
+                    "expected": "",
+                    "must_contain": ""
                 }
             ],
             "submitCommands": [],
