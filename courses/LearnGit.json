@@ -5,7 +5,8 @@
     "description": "Learn the Git cli tool!",
     "difficulty": "medium",
     "lesson_hashes": [
-        "676beb49"
+        "676beb49",
+        "646be690"
     ],
     "lessons": [
         {
@@ -21,6 +22,20 @@
             ],
             "submitCommands": [],
             "title": "git-l1"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "ls -a . | grep \".git\"",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l2"
         }
     ],
     "prerequisites": [
@@ -30,5 +45,5 @@
         "shell",
         "core"
     ],
-    "version": "1.0.0"
+    "version": "1.0.1"
 }
