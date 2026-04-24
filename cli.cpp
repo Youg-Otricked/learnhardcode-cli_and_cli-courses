@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.6.1";
+std::string CURRENT_VERSION = "1.6.2";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -967,8 +967,6 @@ bool isVersionGreater(const std::string& v1, const std::string& v2) {
 
         if (num1 > num2) {
             return true;
-        } else if (num1 < num2) {
-            return false;
         }
     }
 
