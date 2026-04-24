@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.5.5";
+std::string CURRENT_VERSION = "1.6.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -984,8 +984,18 @@ void handlerUpgrade(int numArgs, char* args[]) {
     if (isVersionGreater(remoteVersion, CURRENT_VERSION)) {
         std::cout << "Updating CLI: " << CURRENT_VERSION << " -> " << remoteVersion << "\n";
         std::string homeDir = getenv("HOME");
-        std::string installDir = homeDir + "/.lhc";
-        std::string downloadCmd = "curl -sL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc -o /tmp/lhc";
+        std::string installDir = homeDir + "/.lhc"; 
+        std::string downloadCmd;
+        #if defined(__linux__)
+            std::cout << "Installing Linux ver." << '\n';
+            downloadCmd = "curl -fsSL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc-linux -o /tmp/lhc";
+        #elif defined(__APPLE__) || defined(__MACH__)
+            std::cout << "Installing macOS ver." << '\n';
+            downloadCmd = "curl -fsSL https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses/releases/latest/download/lhc-macos -o /tmp/lhc";
+        #else
+            std::cout << "Unknown OS. Cannot install CLI" << '\n';
+            downloadCmd = "echo \"Sorry, wont work\"";
+        #endif
         system(downloadCmd.c_str());
         system("chmod +x /tmp/lhc");
         std::string moveCmd = "mv /tmp/lhc " + installDir + "/lhc";
