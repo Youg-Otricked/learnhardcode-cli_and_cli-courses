@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.6.2";
+std::string CURRENT_VERSION = "1.6.5";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -198,7 +198,18 @@ void eradicateLesson(std::string hash) {
 void addCourseLesson(std::string lesson) {
     std::ifstream file_in(getHomePath("user_config.json"));
     nlohmann::json data = nlohmann::json::parse(file_in);
-    data["course_lessons"][readConfig("current_course")].push_back(lesson);
+
+    std::string course = readConfig("current_course");
+
+    auto &lessons = data["course_lessons"][course];
+    for (auto &l : lessons) {
+        if (l == lesson) {
+            return;
+        }
+    }
+
+    lessons.push_back(lesson);
+
     std::ofstream file_out(getHomePath("user_config.json"));
     file_out << data.dump(4);
 }

@@ -2,8 +2,8 @@
     "author": "YougOtricked",
     "course_lang": "bash/zsh",
     "course_name": "Learn Git",
-    "description": "Learn the Git cli tool!",
-    "difficulty": "medium",
+    "description": "Learn the Git CLI tool",
+    "difficulty": "Medium",
     "lesson_hashes": [
         "676beb49",
         "646be690"
@@ -14,10 +14,22 @@
             "lang": "bash/zsh",
             "runCommands": [
                 {
-                    "command": "echo \"Hi\"",
+                    "command": "git config get --global user.name",
                     "exit_code": 0,
-                    "expected": "Hi",
+                    "expected": "",
                     "must_contain": ""
+                },
+                {
+                    "command": "git config get --global user.email",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                },
+                {
+                    "command": "git config get --global init.defaultBranch",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "master"
                 }
             ],
             "submitCommands": [],
@@ -51,11 +63,11 @@
         }
     ],
     "prerequisites": [
-        "linux"
+        "Linux"
     ],
     "tags": [
-        "shell",
-        "core"
+        "Core",
+        "Shell"
     ],
-    "version": "1.0.1"
+    "version": "v1.0.5"
 }
