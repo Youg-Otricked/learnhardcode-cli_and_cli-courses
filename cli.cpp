@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.6.8";
+std::string CURRENT_VERSION = "1.7.0";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -538,18 +538,16 @@ void handlerEditLesson(int numArgs, char* args[]) {
 
             std::cout << "invalid option.\n";
         }
-        if (newSpot == "start") arr.insert(arr.begin(), {
-            {"command", cmd},
-            {"exit_code", exitCode},
-            {"expected", expected},
-            {"must_contain", mustContain}
-        });
-        else arr.push_back({
-            {"command", cmd},
-            {"exit_code", exitCode},
-            {"expected", expected},
-            {"must_contain", mustContain}
-        });
+        nlohmann::json obj = nlohmann::json::object();
+        obj["command"] = cmd;
+        obj["exit_code"] = exitCode;
+        obj["expected"] = expected;
+        obj["must_contain"] = mustContain;
+
+        if (newSpot == "start")
+            arr.insert(arr.begin(), obj);
+        else
+            arr.push_back(obj);
     } else if (idx <= (int)arr.size()) {
         idx -= 1;
 
