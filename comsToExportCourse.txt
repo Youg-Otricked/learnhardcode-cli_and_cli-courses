@@ -1,0 +1,1 @@
+eac "Learn Git" "Learn the Git CLI tool" "[Core, Shell]" "v1.0.5" "Medium" "[Linux]"

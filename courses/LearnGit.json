@@ -13,6 +13,22 @@
             "course": "Learn Git",
             "lang": "bash/zsh",
             "runCommands": [
+                [
+                    "command",
+                    "git config list || { echo 'Please install git version 2.46 or newer'; false; }"
+                ],
+                [
+                    "exit_code",
+                    0
+                ],
+                [
+                    "expected",
+                    ""
+                ],
+                [
+                    "must_contain",
+                    ""
+                ],
                 {
                     "command": "git config get --global user.name",
                     "exit_code": 0,

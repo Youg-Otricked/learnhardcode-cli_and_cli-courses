@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.6.5";
+std::string CURRENT_VERSION = "1.6.8";
 void handlerCreateLesson(int numArgs, char* args[]);
 void handlerCreateCourse(int numArgs, char* args[]);
 void handlerRun(int numArgs, char* args[]);
@@ -479,7 +479,7 @@ void handlerEditLesson(int numArgs, char* args[]) {
     nlohmann::json lesson = nlohmann::json::parse(lessonIn);
     std::cout << "Which commands would you like to edit? (run/submit)";
     std::string type;
-    std::cin >> type;
+    std::getline(std::cin, type);
     if (!lesson.contains(type + "Commands") || !lesson[type + "Commands"].is_array())
         throw "Invalid lesson JSON: missing commands array";
 
@@ -492,33 +492,92 @@ void handlerEditLesson(int numArgs, char* args[]) {
         std::string cmd = arr[i].value("command", "");
         std::cout << (i + 1) << ". " << cmd << "\n";
     }
+    int idx;
     std::string s;
-    std::cout << "Which command number to edit? ";
-    std::getline(std::cin, s);
-    int idx = std::stoi(s) - 1;
-    if (idx < 0 || idx >= (int)arr.size()) throw "Index out of range";
-    std::string field;
-    std::cout << "Field (command/exit_code/expected/must_contain): ";
-    std::getline(std::cin, field);
 
-    if (field == "command") {
-        std::string v;
+    while (true) {
+        std::cout << "Which command number to edit (or " 
+                << arr.size() + 1 << " to add new): ";
+
+        std::getline(std::cin, s);
+
+        try {
+            idx = std::stoi(s);
+        } catch (...) {
+            std::cout << "Invalid number.\n";
+            continue;
+        }
+
+        if (idx < 1) {
+            std::cout << "Too small.\n";
+            continue;
+        }
+
+        break;
+    }
+
+    if (idx == (int)arr.size() + 1) {
+        std::string cmd;
         std::cout << "New command: ";
-        std::getline(std::cin, v);
-        arr[idx]["command"] = v;
-    } else if (field == "exit_code") {
-        std::string v;
-        std::cout << "New exit code: ";
-        std::getline(std::cin, v);
-        arr[idx]["exit_code"] = std::stoi(v);
-    } else if (field == "expected") {
-        std::string v = readMultiline("New expected stdout");
-        arr[idx]["expected"] = v;
-    } else if (field == "must_contain") {
-        std::string v = readMultiline("New must-contain stdout");
-        arr[idx]["must_contain"] = v;
+        std::getline(std::cin, cmd);
+
+        int exitCode = 0;
+        std::string exitStr;
+        std::cout << "Exit code (default 0): ";
+        std::getline(std::cin, exitStr);
+        if (!exitStr.empty()) exitCode = std::stoi(exitStr);
+
+        std::string expected = readMultiline("Expected output");
+        std::string mustContain = readMultiline("Must contain");
+        std::string newSpot;
+        while (true) {
+            std::cout << "Where should the command be inserted? (start|end)\n";
+            std::getline(std::cin, newSpot);
+
+            if (newSpot == "start" || newSpot == "end") break;
+
+            std::cout << "invalid option.\n";
+        }
+        if (newSpot == "start") arr.insert(arr.begin(), {
+            {"command", cmd},
+            {"exit_code", exitCode},
+            {"expected", expected},
+            {"must_contain", mustContain}
+        });
+        else arr.push_back({
+            {"command", cmd},
+            {"exit_code", exitCode},
+            {"expected", expected},
+            {"must_contain", mustContain}
+        });
+    } else if (idx <= (int)arr.size()) {
+        idx -= 1;
+
+        std::string field;
+        std::cout << "Field (command/exit_code/expected/must_contain): ";
+        std::getline(std::cin, field);
+
+        if (field == "command") {
+            std::string v;
+            std::cout << "New command: ";
+            std::getline(std::cin, v);
+            arr[idx]["command"] = v;
+        } else if (field == "exit_code") {
+            std::string v;
+            std::cout << "New exit code: ";
+            std::getline(std::cin, v);
+            arr[idx]["exit_code"] = std::stoi(v);
+        } else if (field == "expected") {
+            std::string v = readMultiline("New expected stdout");
+            arr[idx]["expected"] = v;
+        } else if (field == "must_contain") {
+            std::string v = readMultiline("New must-contain stdout");
+            arr[idx]["must_contain"] = v;
+        } else {
+            throw "Unknown field: " + field;
+        }
     } else {
-        throw "Unknown field: " + field;
+        throw "Index Out of range.\n";
     }
     std::ofstream lessonOut(path);
     if (!lessonOut.is_open()) throw "Cannot write lesson file: " + path;
