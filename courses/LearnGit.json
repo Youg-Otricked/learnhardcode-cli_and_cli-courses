@@ -7,7 +7,8 @@
     "lesson_hashes": [
         "676beb49",
         "646be690",
-        "686becdc"
+        "686becdc",
+        "696bee6f"
     ],
     "lessons": [
         {
@@ -97,6 +98,20 @@
             ],
             "submitCommands": [],
             "title": "git-l6"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "git status",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['Changes to be committed:', 'new file:', 'basicGuide/runthrough.md']"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l7"
         }
     ],
     "prerequisites": [
