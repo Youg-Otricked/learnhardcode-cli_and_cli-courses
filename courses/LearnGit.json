@@ -2,11 +2,12 @@
     "author": "YougOtricked",
     "course_lang": "bash/zsh",
     "course_name": "Learn Git",
-    "description": "Learn the Git CLI tool",
+    "description": "Learn the Git command line tool",
     "difficulty": "Medium",
     "lesson_hashes": [
         "676beb49",
-        "646be690"
+        "646be690",
+        "686becdc"
     ],
     "lessons": [
         {
@@ -76,14 +77,36 @@
             ],
             "submitCommands": [],
             "title": "git-l2"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "git status",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['Untracked files', 'runthrough.md']"
+                },
+                {
+                    "command": "cat basicGuide/runthrough.md",
+                    "exit_code": 0,
+                    "expected": "# Steps for new issues:",
+                    "must_contain": "# Steps for new issues: "
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l6"
         }
     ],
     "prerequisites": [
-        "Linux"
+        "'linux'"
     ],
     "tags": [
-        "Core",
-        "Shell"
+        "'core'",
+        "'linux'",
+        "'shell'",
+        "'linus torvalds my GOAT'"
     ],
-    "version": "v1.0.5"
+    "version": "1.5.0"
 }
