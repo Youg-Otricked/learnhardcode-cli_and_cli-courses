@@ -14,7 +14,8 @@
         "48e3b10e",
         "6e6bf64e",
         "4ae3b434",
-        "4de3b8ed"
+        "4de3b8ed",
+        "4ce3b75a"
     ],
     "lessons": [
         {
@@ -208,6 +209,32 @@
             ],
             "submitCommands": [],
             "title": "git-l16"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "git --no-pager log -n 1",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "C:"
+                },
+                {
+                    "command": "cat ./fakeIssues/mouse_stopped.md",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['Steps:', '- Unplug mouse', '- Plug into other port.', '- Done!']"
+                },
+                {
+                    "command": "cat ./realIssues/app_broken.md",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['kill <', '- - Else:', '- - No. No weird OSes. No OpenBSD']"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l17"
         }
     ],
     "prerequisites": [
@@ -217,5 +244,5 @@
         "Core",
         "Shell"
     ],
-    "version": "v1.6.1"
+    "version": "v1.6.2"
 }
