@@ -13,7 +13,8 @@
         "49e3b2a1",
         "48e3b10e",
         "6e6bf64e",
-        "4ae3b434"
+        "4ae3b434",
+        "4de3b8ed"
     ],
     "lessons": [
         {
@@ -187,6 +188,26 @@
             ],
             "submitCommands": [],
             "title": "git-l15"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "git --no-pager log -n 2",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "B:"
+                },
+                {
+                    "command": "cat ./basicGuide/commonIssues.md",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "# Most Common Issues:"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l16"
         }
     ],
     "prerequisites": [
@@ -196,5 +217,5 @@
         "Core",
         "Shell"
     ],
-    "version": "v1.6.0"
+    "version": "v1.6.1"
 }
