@@ -9,7 +9,11 @@
         "646be690",
         "686becdc",
         "696bee6f",
-        "6f6bf7e1"
+        "6f6bf7e1",
+        "49e3b2a1",
+        "48e3b10e",
+        "6e6bf64e",
+        "4ae3b434"
     ],
     "lessons": [
         {
@@ -122,11 +126,67 @@
                     "command": "git --no-pager log -n 1",
                     "exit_code": 0,
                     "expected": "",
-                    "must_contain": "['Author', 'Date', 'commit']"
+                    "must_contain": "[\"Author\", \"Date\", \"commit\"]"
                 }
             ],
             "submitCommands": [],
             "title": "git-l9"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat /tmp/commit_object_hex.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['0000000:', '0000010:', '0000020:', '0000030:'] "
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l12"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat /tmp/catfileout.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['tree', 'author', 'committer']"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l13"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "git --no-pager log -n 1",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['A:', 'add runthrough.md', 'commit']"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l8"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "cat /tmp/blobfile.txt",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "# Steps for new issues:"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l15"
         }
     ],
     "prerequisites": [
@@ -136,5 +196,5 @@
         "Core",
         "Shell"
     ],
-    "version": "v1.5.1"
+    "version": "v1.6.0"
 }
