@@ -172,34 +172,6 @@
             ],
             "submitCommands": [],
             "title": "linux-l30"
-        },
-        {
-            "course": "learn-linux",
-            "lang": "bash/zsh",
-            "runCommands": [
-                {
-                    "command": "jq . c/lessons/lesson1.json",
-                    "exit_code": 0,
-                    "expected": "",
-                    "must_contain": ""
-                }
-            ],
-            "submitCommands": [],
-            "title": "json1"
-        },
-        {
-            "course": "learn-linux",
-            "lang": "bash/zsh",
-            "runCommands": [
-                {
-                    "command": "echo \"me\"",
-                    "exit_code": 0,
-                    "expected": "",
-                    "must_contain": ""
-                }
-            ],
-            "submitCommands": [],
-            "title": "test"
         }
     ],
     "prerequisites": [],
