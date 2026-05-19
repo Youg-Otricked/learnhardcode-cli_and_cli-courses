@@ -5,16 +5,18 @@
     "description": "Learn the linux command line",
     "difficulty": "intermediate",
     "lesson_hashes": [
-        "1cbca150",
-        "1ebca476",
-        "20bca79c",
-        "22bcaac2",
-        "25bcaf7b",
-        "24bcade8",
-        "9cf20a20",
-        "9ef20d46",
-        "9ff20ed9",
-        "85e4f539"
+        "39fce7eec26c7b1a",
+        "c694d06dbfbc221a",
+        "085b7ba306aecfa3",
+        "2217d28ad6513ade",
+        "b239eba4bda4e58d",
+        "9efada27276d9f94",
+        "74dbbed6e9d0466d",
+        "81f54324ac27f40f",
+        "3bcdf17bbdfeeb05",
+        "14d398ea16e4accd",
+        "bd536e9425671075",
+        "a1a868d5019159a5"
     ],
     "lessons": [
         {
@@ -170,6 +172,34 @@
             ],
             "submitCommands": [],
             "title": "linux-l30"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "jq . c/lessons/lesson1.json",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "json1"
+        },
+        {
+            "course": "learn-linux",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": "echo \"me\"",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": ""
+                }
+            ],
+            "submitCommands": [],
+            "title": "test"
         }
     ],
     "prerequisites": [],
@@ -178,5 +208,5 @@
         "shell",
         "core"
     ],
-    "version": "1.2.4"
+    "version": "2.0.0"
 }

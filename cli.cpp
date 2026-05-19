@@ -17,27 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "1.7.0";
-void handlerCreateLesson(int numArgs, char* args[]);
-void handlerCreateCourse(int numArgs, char* args[]);
-void handlerRun(int numArgs, char* args[]);
-void handlerDeleteLesson(int numArgs, char* args[]);
-void handlerChangeCourse(int numArgs, char* args[]);
-void handlerListCourses(int numArgs, char* args[]);
-void handlerListLessons(int numArgs, char* args[]);
-void handlerEditCourse(int numArgs, char* args[]);
-void handlerStatus(int numArgs, char* args[]);
-void handlerHelp(int numArgs, char* args[]);
-void handlerEditLesson(int numArgs, char* args[]);
-void handlerEditBrowserLesson(int numArgs, char* args[]);
-void handlerDeleteCourse(int numArgs, char* args[]);
-void handlerSetup(int numArgs, char* args[]);
-void handlerExportCourse(int numArgs, char* args[]);
-void handlerImportCourse(int numArgs, char* args[]);
-void handlerImportLesson(int numArgs, char* args[]);
-void handlerExportLesson(int numArgs, char* args[]);
-void handlerUpgrade(int numArgs, char* args[]);
-void handlerExportBrowserCourse(int numArgs, char* args[]);
+std::string CURRENT_VERSION = "2.0.0";
 std::string getHomePath(const std::string& subPath) {
     const char* home = std::getenv("HOME");
     if (!home) return subPath;
@@ -78,17 +58,91 @@ void handlerDeleteBrowserLesson(int numArgs, char* args[]) {
     if (ec) throw "Failed to delete: " + path + " (" + ec.message() + ")";
     if (!removed) throw "File not found: " + path;
 }
-std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"export-bc", handlerExportBrowserCourse}, {"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
 std::string generateShortID(const std::string& input) {
-    std::uint32_t hash = 2166136261u;
+    std::uint64_t hash = 0xc70f6907UL; 
+    const std::uint64_t prime = 0xff51afd7ed558ccdULL;
     for (char c : input) {
         hash ^= static_cast<unsigned char>(c);
-        hash *= 16777619u;
+        hash *= prime;
+        hash = (hash << 31) | (hash >> 33);
     }
+    hash ^= hash >> 33;
+    hash *= 0xc4ceb9fe1a85ec53ULL;
+    hash ^= hash >> 33;
+    hash *= 0x9cb565333763114dULL;
+    hash ^= hash >> 33;
     std::stringstream ss;
-    ss << std::hex << std::setw(8) << std::setfill('0') << hash;
+    ss << std::hex << std::setw(16) << std::setfill('0') << hash;
     return ss.str();
 }
+void handlerCreateLesson(int numArgs, char* args[]);
+void handlerCreateCourse(int numArgs, char* args[]);
+void handlerRun(int numArgs, char* args[]);
+void handlerDeleteLesson(int numArgs, char* args[]);
+void handlerChangeCourse(int numArgs, char* args[]);
+void handlerListCourses(int numArgs, char* args[]);
+void handlerListLessons(int numArgs, char* args[]);
+void handlerEditCourse(int numArgs, char* args[]);
+void handlerStatus(int numArgs, char* args[]);
+void handlerHelp(int numArgs, char* args[]);
+void handlerEditLesson(int numArgs, char* args[]);
+void handlerEditBrowserLesson(int numArgs, char* args[]);
+void handlerDeleteCourse(int numArgs, char* args[]);
+void handlerSetup(int numArgs, char* args[]);
+void handlerExportCourse(int numArgs, char* args[]);
+void handlerImportCourse(int numArgs, char* args[]);
+void handlerImportLesson(int numArgs, char* args[]);
+void handlerExportLesson(int numArgs, char* args[]);
+void handlerUpgrade(int numArgs, char* args[]);
+void handlerMigrateHashes(int numArgs, char* args[]) {
+    std::cout << "Starting hash migration & path normalization...\n";
+    std::string configPath = getHomePath("user_config.json");
+    if (!std::filesystem::exists(configPath)) {
+        std::cout << "Error: user_config.json not found!\n";
+        return;
+    }
+    std::ifstream file_in(configPath);
+    nlohmann::json data = nlohmann::json::parse(file_in);
+    file_in.close();
+    nlohmann::json newHashPaths = nlohmann::json::object();
+    nlohmann::json newLessonHashes = nlohmann::json::object();
+    newHashPaths[""] = "";
+    newLessonHashes[""] = "";
+    if (data.contains("course_lessons") && data["course_lessons"].is_object()) {
+        for (auto& [courseName, lessonsArray] : data["course_lessons"].items()) {
+            if (courseName.empty()) continue;
+            std::string lang = data["course_langs"].value(courseName, "");
+            for (auto& lessonElement : lessonsArray) {
+                std::string lessonTitle = lessonElement.get<std::string>();
+                if (lessonTitle.empty()) continue;
+                std::string structuredInput = courseName + ":" + lang + ":" + lessonTitle;
+                std::string new16DigitHash = generateShortID(structuredInput);
+                std::string oldHash = data["lesson_hashes"].value(lessonTitle, "");
+                std::string filename = lessonTitle + ".json";
+                if (!oldHash.empty() && data["hash_paths"].contains(oldHash)) {
+                    std::string oldPath = data["hash_paths"][oldHash].get<std::string>();
+                    std::filesystem::path p(oldPath);
+                    if (!p.filename().empty()) {
+                        filename = p.filename().string();
+                    }
+                }
+                std::string cleanNormalizedPath = getHomePath("cli_lessons/" + filename);
+                newLessonHashes[lessonTitle] = new16DigitHash;
+                newHashPaths[new16DigitHash] = cleanNormalizedPath;
+                std::cout << "Migrated: [" << lessonTitle << "] -> " << new16DigitHash << "\n";
+            }
+        }
+    }
+    data["hash_paths"] = newHashPaths;
+    data["lesson_hashes"] = newLessonHashes;
+    std::ofstream file_out(configPath);
+    file_out << data.dump(4);
+    file_out.close();
+    std::cout << "\nMigration successfully complete!\n";
+}
+void handlerExportBrowserCourse(int numArgs, char* args[]);
+std::unordered_map<std::string, std::function<void(int, char*[])>> commands = {{"migrate", handlerMigrateHashes}, {"export-bc", handlerExportBrowserCourse}, {"upgrade", handlerUpgrade}, {"import-l", handlerImportLesson}, {"export-l", handlerExportLesson}, {"import-c", handlerImportCourse}, {"export-c", handlerExportCourse}, {"setup", handlerSetup}, {"ls-browser-lessons", handlerListBrowserLessons}, {"d-browser-lesson", handlerDeleteBrowserLesson}, {"d-course", handlerDeleteCourse}, {"e-browser-lesson", handlerEditBrowserLesson}, {"e-lesson", handlerEditLesson},{"e-course", handlerEditCourse}, {"help", handlerHelp}, {"ls-lessons", handlerListLessons}, {"status", handlerStatus}, {"ls-courses", handlerListCourses}, {"ch-course", handlerChangeCourse},{"c-course", handlerCreateCourse}, {"c-lesson", handlerCreateLesson}, {"run", handlerRun}, {"d-lesson", handlerDeleteLesson}};
+
 void editConfig(std::string field, std::string value) {
     std::ifstream file_in(getHomePath("user_config.json"));
     nlohmann::json data = nlohmann::json::parse(file_in);
@@ -810,6 +864,7 @@ std::unordered_map<std::string, std::string> usage = {
     {"d-browser-lesson", "lhc d-browser-lesson <id>"},
     {"e-browser-lesson", "lhc e-browser-lesson <id>"},
     {"upgrade", "lhc upgrade"},
+    {"export-bc", "lhc export-bc <course_name> <lang> <lesson1.json> <lesson2.json> ..."}
 };
 std::string getCourseFromLesson(const std::string& lessonTitle) {
     std::ifstream file_in(getHomePath("user_config.json"));
