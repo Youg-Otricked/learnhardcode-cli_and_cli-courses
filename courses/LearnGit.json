@@ -15,7 +15,8 @@
         "6e6bf64e",
         "4ae3b434",
         "4de3b8ed",
-        "4ce3b75a"
+        "4ce3b75a",
+        "3fe3a2e3"
     ],
     "lessons": [
         {
@@ -235,6 +236,20 @@
             ],
             "submitCommands": [],
             "title": "git-l17"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": " git config list --local || { echo 'Please install git version 2.46 or newer'; false; }",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "['version=0.1.2', 'users=0']"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l18"
         }
     ],
     "prerequisites": [
@@ -244,5 +259,5 @@
         "Core",
         "Shell"
     ],
-    "version": "v1.6.2"
+    "version": "v1.7.0"
 }
