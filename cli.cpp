@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "2.0.1";
+std::string CURRENT_VERSION = "2.1.0";
 std::string getHomePath(const std::string& subPath) {
     const char* home = std::getenv("HOME");
     if (!home) return subPath;
@@ -359,6 +359,18 @@ void handlerCreateLesson(int numArgs, char* args[]) {
     std::cout << "Lesson type (cli/browser): ";
     std::getline(std::cin, type);
     if (type == "cli") {
+        std::string course = readConfig("current_course");
+        std::string lang = getCourseLang(course);
+        std::string combined = course + ":" + lang + ":" + title;
+        std::string lessonID = generateShortID(combined);
+        std::ifstream file_in(getHomePath("user_config.json"));
+        nlohmann::json data = nlohmann::json::parse(file_in);
+        if (data["lesson_hashes"].contains(title) && data["course_lessons"][readConfig("current_course")].contains(title)) {
+            throw "Sorry, a lesson with that title already exists.";
+        }
+        else if (data["hash_paths"].contains(lessonID)) {
+            throw "Sorry, cannot create lesson with that title: An existing lesson already has the hash " + lessonID + ". Please create an issue on the github at https://github.com/Youg-Otricked/learnhardcode-cli_and_cli-courses saying the current hash is too small.";
+        }
         lesson["title"] = title;
         lesson["course"] = readConfig("current_course");
         lesson["lang"] = getCourseLang(readConfig("current_course"));
@@ -409,10 +421,6 @@ void handlerCreateLesson(int numArgs, char* args[]) {
             });
         }
         createFile(title + ".json", lesson.dump(4));
-        std::string course = readConfig("current_course");
-        std::string lang = getCourseLang(course);
-        std::string combined = course + ":" + lang + ":" + title;
-        std::string lessonID = generateShortID(combined);
         std::cout << "Lesson Hash: " << lessonID << std::endl;
         addCourseLesson(title);
         addLessonHash(title, lessonID);
