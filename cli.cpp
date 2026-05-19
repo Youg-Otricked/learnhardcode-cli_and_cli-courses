@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdint>
-std::string CURRENT_VERSION = "2.0.0";
+std::string CURRENT_VERSION = "2.0.1";
 std::string getHomePath(const std::string& subPath) {
     const char* home = std::getenv("HOME");
     if (!home) return subPath;
@@ -95,7 +95,7 @@ void handlerImportLesson(int numArgs, char* args[]);
 void handlerExportLesson(int numArgs, char* args[]);
 void handlerUpgrade(int numArgs, char* args[]);
 void handlerMigrateHashes(int numArgs, char* args[]) {
-    std::cout << "Starting hash migration & path normalization...\n";
+    std::cout << "Starting 16-digit hex hash migration & path normalization...\n";
     std::string configPath = getHomePath("user_config.json");
     if (!std::filesystem::exists(configPath)) {
         std::cout << "Error: user_config.json not found!\n";
@@ -133,6 +133,10 @@ void handlerMigrateHashes(int numArgs, char* args[]) {
             }
         }
     }
+    data["hash_paths"].clear();
+    data["lesson_hashes"].clear();
+    data["hash_paths"] = nlohmann::json::object();
+    data["lesson_hashes"] = nlohmann::json::object();
     data["hash_paths"] = newHashPaths;
     data["lesson_hashes"] = newLessonHashes;
     std::ofstream file_out(configPath);
