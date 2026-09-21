@@ -1024,7 +1024,7 @@ void handlerRun(int numArgs, char* args[]) {
             hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (commandJson["must_not_contain"] != "" && (hasPassed || commandJson["must_contain"] == "")) {
-            hasPassed = checkMustContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+            hasPassed = checkMustnotContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (commandJson["expected"] != "" && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == ""))) {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
@@ -1055,7 +1055,7 @@ void handlerRun(int numArgs, char* args[]) {
             hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (commandJson["must_not_contain"] != "" && (hasPassed || commandJson["must_contain"] == "")) {
-            hasPassed = checkMustContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+            hasPassed = checkMustnotContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (commandJson["expected"] != "" && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == ""))) {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
