@@ -47,7 +47,7 @@ std::string decode_b64url(const std::string& b64) {
     return tmp;
 }
 void handlerDeleteBrowserLesson(int numArgs, char* args[]) {
-    if (numArgs < 1) "Usage: lhc d-browser-lesson <id|title>";
+    if (numArgs < 1) throw "Usage: lhc d-browser-lesson <id|title>";
     std::string id = args[0];
     if (!id.ends_with(".json")) id += ".json";
 
@@ -338,6 +338,19 @@ std::string readMultiline(const std::string& prompt, const std::string& endMarke
     if (!out.empty()) out.pop_back();
     return out;
 }
+bool checkMustnotContain(const std::string& output, const nlohmann::json& mustContain) {
+    if (mustContain.is_array()) {
+        for (auto& item : mustContain) {
+            if (output.find(item.get<std::string>()) != std::string::npos) {
+                return false;
+            }
+        }
+        return true;
+    } else if (mustContain.is_string() && mustContain.get<std::string>() != "") {
+        return output.find(mustContain.get<std::string>()) == std::string::npos;
+    }
+    return false;
+}
 bool checkMustContain(const std::string& output, const nlohmann::json& mustContain) {
     if (mustContain.is_array()) {
         for (auto& item : mustContain) {
@@ -387,14 +400,18 @@ void handlerCreateLesson(int numArgs, char* args[]) {
             int exitCode = 0;
             try { if (!exitStr.empty()) exitCode = std::stoi(exitStr); }
             catch (...) { throw "Exit code must be an integer"; }
+            std::cout << "(optional)" << '\n';
             std::string out = readMultiline("Enter Expected Stdout");
             std::cout << "(optional)" << '\n';
             std::string mstCntain = readMultiline("Enter Must contain-stdout");
+            std::cout << "(optional)" << '\n';
+            std::string msntCntain = readMultiline("Enter Must Not contain-stdout");
             lesson["runCommands"].push_back({
                 {"command", cmd},
                 {"exit_code", exitCode},
                 {"expected", out},
-                {"must_contain", mstCntain}
+                {"must_contain", mstCntain},
+                {"must_not_contain", msntCntain}
             });
         }
         lesson["submitCommands"] = nlohmann::json::array();
@@ -410,14 +427,18 @@ void handlerCreateLesson(int numArgs, char* args[]) {
             int exitCode = 0;
             try { if (!exitStr.empty()) exitCode = std::stoi(exitStr); }
             catch (...) { throw "Exit code must be an integer"; }
+            std::cout << "(optional)" << '\n';
             std::string out = readMultiline("Enter Expected Stdout");
             std::cout << "(optional)" << '\n';
             std::string mstCntain = readMultiline("Enter Must contain-stdout");
+            std::cout << "(optional)" << '\n';
+            std::string msntCntain = readMultiline("Enter Must Not contain-stdout");
             lesson["submitCommands"].push_back({
                 {"command", cmd},
                 {"exit_code", exitCode},
                 {"expected", out},
-                {"must_contain", mstCntain}
+                {"must_contain", mstCntain},
+                {"must_not_contain", msntCntain}
             });
         }
         createFile(title + ".json", lesson.dump(4));
@@ -595,6 +616,7 @@ void handlerEditLesson(int numArgs, char* args[]) {
 
         std::string expected = readMultiline("Expected output");
         std::string mustContain = readMultiline("Must contain");
+        std::string mustntContain = readMultiline("Must not contain");
         std::string newSpot;
         while (true) {
             std::cout << "Where should the command be inserted? (start|end)\n";
@@ -609,7 +631,7 @@ void handlerEditLesson(int numArgs, char* args[]) {
         obj["exit_code"] = exitCode;
         obj["expected"] = expected;
         obj["must_contain"] = mustContain;
-
+        obj["must_not_contain"] = mustntContain;
         if (newSpot == "start")
             arr.insert(arr.begin(), obj);
         else
@@ -618,7 +640,7 @@ void handlerEditLesson(int numArgs, char* args[]) {
         idx -= 1;
 
         std::string field;
-        std::cout << "Field (command/exit_code/expected/must_contain): ";
+        std::cout << "Field (command/exit_code/expected/must_contain/must_not_contain): ";
         std::getline(std::cin, field);
 
         if (field == "command") {
@@ -636,6 +658,9 @@ void handlerEditLesson(int numArgs, char* args[]) {
             arr[idx]["expected"] = v;
         } else if (field == "must_contain") {
             std::string v = readMultiline("New must-contain stdout");
+            arr[idx]["must_contain"] = v;
+        } else if (field == "must_not_contain") {
+            std::string v = readMultiline("New must-not-contain stdout");
             arr[idx]["must_contain"] = v;
         } else {
             throw "Unknown field: " + field;
@@ -713,7 +738,7 @@ void handlerListLessons(int numArgs, char* args[]) {
 }
 void handlerEditCourse(int numArgs, char* args[]) {
     if (numArgs < 3) throw "Usage: lhc e-course <course_name> lang <newlang>";
-    if (args[1] == "lang") {
+    if (std::string(args[1]) == std::string("lang")) {
         editCourseLang(args[0], args[2]);
     }
 }
@@ -995,11 +1020,16 @@ void handlerRun(int numArgs, char* args[]) {
         const CmdResult commandOutput = execWithCode(commandJson["command"]);
         std::string out = commandOutput.out;
         if (!out.empty() && out.back() == '\n') out.pop_back();
-        if (checkMustContain(out, commandJson["must_contain"])) {
+        if (commandJson["must_contain"] != "") {
             hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else if (commandJson["expected"] != "") {
+        }
+        if (commandJson["must_not_contain"] != "" && (hasPassed || commandJson["must_contain"] == "")) {
+            hasPassed = checkMustContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        }
+        if (commandJson["expected"] != "" && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == ""))) {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else {
+        } 
+        if (hasPassed && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == "" && commandJson["expected"] == ""))) {
             hasPassed = commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         if (isSubmit || i < 3) {
@@ -1021,11 +1051,16 @@ void handlerRun(int numArgs, char* args[]) {
         const CmdResult commandOutput = execWithCode(commandJson["command"]);
         std::string out = commandOutput.out;
         if (!out.empty() && out.back() == '\n') out.pop_back();
-        if (checkMustContain(out, commandJson["must_contain"])) {
+        if (commandJson["must_contain"] != "") {
             hasPassed = checkMustContain(out, commandJson["must_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else if (commandJson["expected"] != "") {
+        }
+        if (commandJson["must_not_contain"] != "" && (hasPassed || commandJson["must_contain"] == "")) {
+            hasPassed = checkMustContain(out, commandJson["must_not_contain"]) && commandOutput.exitCode == commandJson["exit_code"].get<int>();
+        }
+        if (commandJson["expected"] != "" && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == ""))) {
             hasPassed = out == commandJson["expected"].get<std::string>() && commandOutput.exitCode == commandJson["exit_code"].get<int>();
-        } else {
+        } 
+        if (hasPassed && (hasPassed || (commandJson["must_contain"] == "" && commandJson["must_not_contain"] == "" && commandJson["expected"] == ""))) {
             hasPassed = commandOutput.exitCode == commandJson["exit_code"].get<int>();
         }
         std::cout << (hasPassed ? "Success" : "Fail") << '\n';

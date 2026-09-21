@@ -16,7 +16,8 @@
         "f0ce2899b2d19b71",
         "43d80bdd26faca62",
         "75c6b3b3b93ad866",
-        "c0a239edcf442026"
+        "c0a239edcf442026",
+        "a39b40172eaf9285"
     ],
     "lessons": [
         {
@@ -240,6 +241,21 @@
             ],
             "submitCommands": [],
             "title": "git-l18"
+        },
+        {
+            "course": "Learn Git",
+            "lang": "bash/zsh",
+            "runCommands": [
+                {
+                    "command": " git config list --local",
+                    "exit_code": 0,
+                    "expected": "",
+                    "must_contain": "",
+                    "must_not_contain": "getapp"
+                }
+            ],
+            "submitCommands": [],
+            "title": "git-l20"
         }
     ],
     "prerequisites": [
@@ -249,5 +265,5 @@
         "Core",
         "Shell"
     ],
-    "version": "v1.7.0"
+    "version": "v1.0.5"
 }
